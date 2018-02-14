@@ -35,7 +35,7 @@ public class ElasticSearchManager {
     private static final String INDEX = "181437818";
     private static final String ITEM_TYPE = "items";
     private static final String USER_TYPE = "users";
-    private static final String BID = "bid";
+    private static final String BID = "bids";
     private static JestDroidClient client;
 
     /**
@@ -139,12 +139,12 @@ public class ElasticSearchManager {
             Boolean success = false;
             Bid bid_to_delete = params[0];
             try {
-                DocumentResult execute = client.execute(new Delete.Builder(bid_to_delete.getId()).index(INDEX).type(ITEM_TYPE).build());
+                DocumentResult execute = client.execute(new Delete.Builder(bid_to_delete.getBidId()).index(INDEX).type(ITEM_TYPE).build());
                 if(execute.isSucceeded()) {
-                    Log.i(tag: "ELASTICSEARCH", msg:"Delete bid was successful");
+                    Log.i("ELASTICSEARCH", "Delete bid was successful");
                     success = true;
                 } else {
-                    Log.e(tag:"ELASTICSEARCH", msg:"Delete bid failed");
+                    Log.e("ELASTICSEARCH", "Delete bid failed");
                 }
 
             } catch (IOException e) {
