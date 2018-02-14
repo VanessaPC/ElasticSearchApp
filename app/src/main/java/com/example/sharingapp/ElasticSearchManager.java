@@ -126,6 +126,57 @@ public class ElasticSearchManager {
             return success;
         }
     }
+    /*
+     * AddBidTask() - Add bid to remote server
+     */
+    public static class AddBidTask extends AsyncTask<Bid, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Bid...params) {
+
+            verifyConfig();
+            Boolean success = false;
+            Bid bid_to_add = params[0];
+            try {
+                DocumentResult execute = client.execute(new Delete.Builder(bid_to_add.getBidId()).index(INDEX).type(BID).build());
+                if(execute.isSucceeded()) {
+                    Log.i("ELASTICSEARCH", "Add bid was successful");
+                    success = true;
+                } else {
+                    Log.e("ELASTICSEARCH", "Add bid failed");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return success;
+        }
+    }
+
+    /*
+     * GetBidListTask() - Returns all remote bids from server
+     */
+    public static class GetBidListTask extends AsyncTask<Bid, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Bid...params) {
+
+            verifyConfig();
+            Boolean success = false;
+            Bid bid_to_list = params[0];
+            try {
+                DocumentResult execute = client.execute(new bidList.Builder(bid_to_list.getBidId()).index(INDEX).type(BID).build());
+                if(execute.isSucceeded()) {
+                    Log.i("ELASTICSEARCH", "Add bid list was successful");
+                    success = true;
+                } else {
+                    Log.e("ELASTICSEARCH", "Add bid failed");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return success;
+        }
+    }
 
     /**
      * RemoveBidTask() - bid from remote server using bid_id
@@ -139,7 +190,7 @@ public class ElasticSearchManager {
             Boolean success = false;
             Bid bid_to_delete = params[0];
             try {
-                DocumentResult execute = client.execute(new Delete.Builder(bid_to_delete.getBidId()).index(INDEX).type(ITEM_TYPE).build());
+                DocumentResult execute = client.execute(new Delete.Builder(bid_to_delete.getBidId()).index(INDEX).type(BID).build());
                 if(execute.isSucceeded()) {
                     Log.i("ELASTICSEARCH", "Delete bid was successful");
                     success = true;

@@ -22,4 +22,6 @@ public class DeleteBidCommand extends Command {
         bid_list.removeBid(bid);
         super.setIsExecuted(bid_list.saveBids(context));
     }
+
+    
 }
