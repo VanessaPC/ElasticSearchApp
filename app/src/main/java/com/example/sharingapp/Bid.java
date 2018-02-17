@@ -52,4 +52,8 @@ public class Bid extends Observable {
     public String getBidderUsername() {
         return bidder_username;
     }
+
+    public String getId() {
+        return bid_id;
+    }
 }

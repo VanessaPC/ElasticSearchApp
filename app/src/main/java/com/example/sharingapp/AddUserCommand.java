@@ -3,18 +3,18 @@ package com.example.sharingapp;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Command to add user
+ * Created by rosacristobalcastro on 17/2/18.
  */
-public class AddUserCommand extends Command {
 
+public class AddUserCommand extends Command{
     private User user;
 
-    public AddUserCommand (User user) {
+    public AddUserCommand(User user) {
         this.user = user;
     }
 
-    // Save the user remotely to server
-    public void execute() {
+    // Save the item remotely to server
+    public void execute(){
         ElasticSearchManager.AddUserTask add_user_task = new ElasticSearchManager.AddUserTask();
         add_user_task.execute(user);
 

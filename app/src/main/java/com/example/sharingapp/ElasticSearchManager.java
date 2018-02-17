@@ -129,18 +129,22 @@ public class ElasticSearchManager {
     /*
      * AddBidTask() - Add bid to remote server
      */
-    public static class AddBidTask extends AsyncTask<Bid, Void, Boolean> {
+    public static class AddBidTask extends AsyncTask<Bid,Void,Boolean> {
 
         @Override
-        protected Boolean doInBackground(Bid...params) {
+        protected Boolean doInBackground(Bid... params) {
 
             verifyConfig();
             Boolean success = false;
-            Bid bid_to_add = params[0];
+            Bid bid = params[0];
+
+            String id = bid.getId(); // Explicitly set the id to match the locally generated id
+            Index index = new Index.Builder(bid).index(INDEX).type(BID).id(id).build();
             try {
-                DocumentResult execute = client.execute(new Delete.Builder(bid_to_add.getBidId()).index(INDEX).type(BID).build());
+                DocumentResult execute = client.execute(index);
                 if(execute.isSucceeded()) {
                     Log.i("ELASTICSEARCH", "Add bid was successful");
+                    Log.i("ADDED BID", id);
                     success = true;
                 } else {
                     Log.e("ELASTICSEARCH", "Add bid failed");
@@ -148,63 +152,69 @@ public class ElasticSearchManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             return success;
         }
     }
+
 
     /*
      * GetBidListTask() - Returns all remote bids from server
      */
-    public static class GetBidListTask extends AsyncTask<Bid, Void, Boolean> {
+    public static class GetBidListTask extends AsyncTask<Void,Void,ArrayList<Bid>> {
 
         @Override
-        protected Boolean doInBackground(Bid...params) {
+        protected ArrayList<Bid> doInBackground(Void... params) {
 
             verifyConfig();
-            Boolean success = false;
-            Bid bid_to_list = params[0];
+            ArrayList<Bid> bids = new ArrayList<>();
+            String search_string = "{\"from\":0,\"size\":10000}";
+
+            Search search = new Search.Builder(search_string).addIndex(BID).build();
             try {
-                DocumentResult execute = client.execute(new bidList.Builder(bid_to_list.getBidId()).index(INDEX).type(BID).build());
-                if(execute.isSucceeded()) {
-                    Log.i("ELASTICSEARCH", "Add bid list was successful");
-                    success = true;
+                SearchResult execute = client.execute(search);
+                if (execute.isSucceeded()) {
+                    bids = (ArrayList<Bid>) execute.getSourceAsObjectList(Bid.class);
+                    Log.i("ELASTICSEARCH","Bid search was successful");
                 } else {
-                    Log.e("ELASTICSEARCH", "Add bid failed");
+                    Log.i("ELASTICSEARCH", "No bids found");
                 }
             } catch (IOException e) {
+                Log.i("ELASTICSEARCH", "Bids search failed");
                 e.printStackTrace();
             }
-            return success;
+
+            return bids;
         }
     }
+
 
     /**
      * RemoveBidTask() - bid from remote server using bid_id
      */
-    public static class RemoveBidTask extends AsyncTask<Bid, Void, Boolean> {
+    public static class RemoveBidTask extends AsyncTask<Bid,Void,Boolean> {
 
         @Override
-        protected Boolean doInBackground(Bid...params) {
+        protected Boolean doInBackground(Bid... params) {
 
             verifyConfig();
             Boolean success = false;
             Bid bid_to_delete = params[0];
             try {
-                DocumentResult execute = client.execute(new Delete.Builder(bid_to_delete.getBidId()).index(INDEX).type(BID).build());
+                DocumentResult execute = client.execute(new Delete.Builder(bid_to_delete.getId()).index(BID).build());
                 if(execute.isSucceeded()) {
                     Log.i("ELASTICSEARCH", "Delete bid was successful");
                     success = true;
                 } else {
                     Log.e("ELASTICSEARCH", "Delete bid failed");
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             return success;
         }
     }
-
 
     /**
      * Returns all remote users from server
